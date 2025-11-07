@@ -1,7 +1,5 @@
 from pathlib import Path
 from lxml import etree
-import chardet
-import warnings
 from typing import List, Optional
 import logging
 log = logging.getLogger(__name__)

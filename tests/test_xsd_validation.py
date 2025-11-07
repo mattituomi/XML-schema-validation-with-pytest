@@ -22,14 +22,3 @@ def test_all_valid(xml_file, schema_path):
 def test_all_invalid(xml_file, schema_path):
     log.info(f"Testing invalid file: {xml_file}")
     PayslipValidator(xml_file, schema_path).run()
-    #with pytest.raises(PayslipValidationError) as excinfo:
-    #    PayslipValidator(xml_file, schema_path).run()
-
-    ## Ensure at least one error message contains element/attribute hint
-    #val_err: PayslipValidationError = excinfo.value
-    #assert val_err.errors, "No detailed errors captured"
-    ## optional: assert any message mentions angle bracket or element name pattern
-    #join = " ".join(msg for _, msg in val_err.errors)
-    #assert any(tag in join for tag in ["Element", "attribute", "<", "amount", "EmployeeID", "Salary"]), (
-    #    f"No identifiable path or element in error messages for {xml_file.name}:\n{join}"
-    #)
