@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<Acks>
+	<Ack>
+		<Id>A123</Id>
+		<Timestamp>20131126T123000</Timestamp>
+		<ReferencedMessage>
+			<MessageId>7645832</MessageId>
+			<Timestamp>20130302T151866</Timestamp>
+		</ReferencedMessage>
+		<Response>NEG</Response>
+		<Description>Validointivirhe</Description>
+	</Ack>
+	<Ack>
+		<Id>A124</Id>
+		<Timestamp>20131126T123000</Timestamp>
+		<ReferencedMessage>
+			<MessageId>7645833</MessageId>
+			<Timestamp>20130302T151866</Timestamp>
+		</ReferencedMessage>
+		<Response>POS</Response>
+	</Ack>
+</Acks>

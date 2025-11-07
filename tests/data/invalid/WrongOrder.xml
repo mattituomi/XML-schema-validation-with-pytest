@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<Payslips>
+  <Payslip>
+    <HeaderData>
+      <MessageId>7645832</MessageId>
+    </HeaderData>
+    <Version>2.0</Version>
+  </Payslip>
+</Payslips>

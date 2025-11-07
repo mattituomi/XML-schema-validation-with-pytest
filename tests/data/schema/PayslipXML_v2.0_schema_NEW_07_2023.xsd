@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<!-- Payslip v.2.0 -->
+	<!-- ROOT ELEMENT -->
+	<!-- Updated 07/2023-->
+	<xs:element name="Payslips">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Payslip" type="PayslipType" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<!-- ************ -->
+	<!-- SIMPLE TYPES -->
+	<!-- ************ -->
+	<xs:simpleType name="AccountType">
+		<xs:restriction base="xs:string">
+			<!-- removed 07/2023 to allow also other bank account numbers than IBAN, needed e.g. with foreign account numbers and length could be 34 chars. -->
+			<!--	<xs:pattern value="[A-Z]{2}[0-9]{1,31}"/>-->
+			<xs:maxLength value="34"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="AttachmentIndexType">
+		<xs:restriction base="xs:int">
+			<xs:minInclusive value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="DeliveryMethodType">
+		<xs:restriction base="xs:string">
+			<xs:length value="2"/>
+			<xs:pattern value="[0-9]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="LanguageCodeType">
+		<xs:restriction base="xs:string">
+			<xs:length value="2"/>
+			<xs:pattern value="[a-z]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PayDateType">
+		<xs:restriction base="xs:string">
+			<xs:length value="8"/>
+			<xs:pattern value="[2][0][0-9]{2}[0-1][0-9][0-3][0-9]"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PersonIDType">
+		<xs:restriction base="xs:string">
+			<!-- added 07/2023 to support other separator chars than A, now A-Z -->
+			<xs:pattern value="[0-3][0-9][0-1][0-9]{3}[\+|\-|A-Z][0-9]{3}[0-9A-Z]"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="StorageTimeType">
+		<xs:restriction base="xs:string">
+			<xs:length value="8"/>
+			<xs:pattern value="[2][0-9]{3}[0-1][0-9][0-3][0-9]"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="StylesheetIDType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="40"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- ************ -->
+	<!-- COMPLEX TYPES -->
+	<!-- ************ -->
+	<xs:complexType name="AccountCodeType">
+		<xs:simpleContent>
+			<xs:extension base="AccountType">
+				<xs:attribute name="Type" use="required">
+					<xs:simpleType>
+						<xs:restriction base="xs:NMTOKEN">
+							<xs:enumeration value="IBAN"/>
+							<xs:enumeration value="BBAN"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="AccountCType">
+		<xs:sequence>
+			<xs:element name="Label" type="xs:string" minOccurs="0"/>
+			<xs:element name="Value" type="AccountCodeType"/>
+			<xs:element name="BIC" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AddressType">
+		<xs:sequence>
+			<xs:element name="Heading" type="xs:string" minOccurs="0"/>
+			<xs:element name="Name" type="xs:string" maxOccurs="unbounded"/>
+			<xs:element name="AddressLine" type="xs:string" maxOccurs="unbounded"/>
+			<xs:element name="PostalCode" type="xs:string"/>
+			<xs:element name="PostOffice" type="xs:string"/>
+			<xs:element name="CountryCode" type="xs:string" minOccurs="0"/>
+			<xs:element name="Country" type="xs:string" minOccurs="0"/>
+			<xs:element name="Telephone" type="TelephoneType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="EmailAddress" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AddressType2">
+		<xs:sequence>
+			<xs:element name="Heading" type="xs:string" minOccurs="0"/>
+			<xs:element name="RecipientName" type="RecipientNameType"/>
+			<xs:element name="AddressLine" type="xs:string" maxOccurs="unbounded"/>
+			<xs:element name="PostalCode" type="xs:string"/>
+			<xs:element name="PostOffice" type="xs:string"/>
+			<xs:element name="CountryCode" type="xs:string" minOccurs="0"/>
+			<xs:element name="Country" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AttachmentType">
+		<xs:sequence>
+			<xs:element name="Attachment" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="AttachmentIndex" type="AttachmentIndexType" default="1"/>
+						<xs:element name="FileType" type="xs:string" minOccurs="0"/>
+						<xs:element name="Filename" type="xs:string"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CalculationBasesFrameType">
+		<xs:sequence>
+			<xs:element name="Heading" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Record" type="LabelValueType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ColumnHeadingType">
+		<xs:sequence>
+			<xs:element name="Heading" type="xs:string" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CumulativeLineType">
+		<xs:sequence>
+			<xs:element name="LineHeading" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Cell" type="LabelValueType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CumulativeSetType">
+		<xs:sequence>
+			<xs:element name="SetHeading" type="ColumnHeadingType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Line" type="CumulativeLineType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DateOfPaymentType">
+		<xs:sequence>
+			<xs:element name="Label" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Date" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DeliveryChannelsType">
+		<xs:sequence>
+			<xs:element name="DeliveryChannel" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="DeliveryMethodCode" type="DeliveryMethodType"/>
+						<xs:element name="DeliveryInfo" type="DeliveryInfoType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DeliveryInfoType">
+		<xs:sequence>
+			<xs:element name="BankCode" type="xs:string" minOccurs="0"/>
+			<xs:element name="StylesheetID" type="StylesheetIDType" minOccurs="0"/>
+			<xs:element name="ReplyToEmail" type="xs:string" minOccurs="0"/>
+			<xs:element name="RecipientTelephone" type="xs:string" minOccurs="0"/>
+			<xs:element name="RecipientEmailAddress" type="xs:string" minOccurs="0"/>
+			<xs:element name="PrintingInfo" type="PrintingInfoType" minOccurs="0"/>
+			<xs:element name="NotificationInfo" type="NotificationInfoType" minOccurs="0"/>
+			<xs:element name="StorageTime" type="StorageTimeType" minOccurs="0"/>
+			<xs:element name="FreeText" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DetailLineType">
+		<xs:sequence>
+			<xs:element name="PayCode" type="xs:string" minOccurs="0"/>
+			<xs:element name="Description" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Value" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Amount" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DetailListType">
+		<xs:sequence>
+			<xs:element name="HeadingLine" type="ColumnHeadingType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="DetailLine" type="DetailLineType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DocumentTitleType">
+		<xs:sequence>
+			<xs:element name="Value" type="xs:string" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="EmployeeIdentityType">
+		<xs:choice>
+			<xs:element name="PersonID" type="PersonIDType"/>
+			<xs:element name="EmployeeID" type="xs:string"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="IdentityType">
+		<xs:sequence>
+			<xs:element name="Label" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="EmployeeIdentity" type="EmployeeIdentityType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="LabelValueType">
+		<xs:sequence>
+			<xs:element name="Label" type="xs:string" minOccurs="0"/>
+			<xs:element name="Value" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="NotificationInfoType">
+		<xs:sequence>
+			<xs:element name="NotificationTelephone" type="xs:string" minOccurs="0"/>
+			<xs:element name="NotificationEmailAddress" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PartyIdentificationType">
+		<xs:sequence>
+			<xs:element name="PartyIdentificationId" type="PartyIdentificationIdType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PartyIdentificationIdType">
+		<xs:sequence>
+			<xs:element name="Authority" type="xs:string"/>
+			<xs:element name="Value" type="xs:string"/>
+			<xs:element name="Extension" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PeriodDatesType">
+		<xs:sequence>
+			<xs:element name="Label" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="StartDate" type="DateOfPaymentType" minOccurs="0"/>
+			<xs:element name="TermDate" type="DateOfPaymentType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PeriodType">
+		<xs:sequence>
+			<xs:element name="Label" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="PeriodCode" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PrintingInfoType">
+		<xs:sequence>
+			<xs:element name="LetterClass" type="xs:string"/>
+			<xs:element name="Form" type="xs:string" minOccurs="0"/>
+			<xs:element name="PPNumber" type="xs:string" minOccurs="0"/>
+			<xs:element name="MailDeliverer" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="RecipientNameType">
+		<xs:sequence>
+			<xs:element name="ForeName" type="xs:string"/>
+			<xs:element name="SurName" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TelephoneType">
+		<xs:sequence>
+			<xs:element name="PhoneNumber" type="xs:string" minOccurs="0"/>
+			<xs:element name="MobileNumber" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- *********** -->
+	<!-- ROOT TYPE I -->
+	<!-- *********** -->
+	<xs:complexType name="PayslipType">
+		<xs:sequence>
+			<xs:element name="Version" type="xs:string"/>
+			<xs:element name="HeaderData" type="HeaderDataType"/>
+			<xs:element name="PayPeriod" type="PayPeriodType" minOccurs="0"/>
+			<xs:element name="Delivery" type="DeliveryType"/>
+			<xs:element name="Employee" type="EmployeeType"/>
+			<xs:element name="BankAccount" type="BankAccountType" minOccurs="0"/>
+			<xs:element name="CalculationBases" type="CalculationBasesType" minOccurs="0"/>
+			<xs:element name="PayDetails" type="PayDetailsType" minOccurs="0"/>
+			<xs:element name="EarningsToDate" type="EarningsToDateType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Messages" type="MessagesType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- ************ -->
+	<!-- ROOT TYPE II -->
+	<!-- ************ -->
+	<xs:complexType name="HeaderDataType">
+		<xs:sequence>
+			<xs:element name="MessageId" type="xs:string"/>
+			<xs:element name="Timestamp" type="xs:string"/>
+			<xs:element name="DocumentTitle" type="DocumentTitleType"/>
+			<xs:element name="PayDate" type="PayDateType"/>
+			<xs:element name="NetPayment" type="LabelValueType"/>
+			<xs:element name="Payer" type="xs:string"/>
+			<xs:element name="PartyIdentifications" type="PartyIdentificationType"/>
+			<xs:element name="DeliveryChannels" type="DeliveryChannelsType"/>
+			<xs:element name="LanguageCode" type="LanguageCodeType" minOccurs="0"/>
+			<xs:element name="Attachments" type="AttachmentType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- ************* -->
+	<!-- ROOT TYPE III -->
+	<!-- ************* -->
+	<xs:complexType name="PayPeriodType">
+		<xs:sequence>
+			<xs:element name="Heading" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="DateOfPayment" type="DateOfPaymentType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Period" type="PeriodType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="PeriodDates" type="PeriodDatesType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- ************ -->
+	<!-- ROOT TYPE IV -->
+	<!-- ************ -->
+	<xs:complexType name="DeliveryType">
+		<xs:sequence>
+			<xs:element name="Heading" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Sender" type="AddressType"/>
+			<xs:element name="Recipient" type="AddressType2"/>
+			<xs:element name="PayOffice" type="AddressType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- *********** -->
+	<!-- ROOT TYPE V -->
+	<!-- *********** -->
+	<xs:complexType name="EmployeeType">
+		<xs:sequence>
+			<xs:element name="Heading" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Identity" type="IdentityType"/>
+			<xs:element name="PersonNumber" type="LabelValueType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="TaxNumber" type="LabelValueType" minOccurs="0"/>
+			<xs:element name="EmployeeName" type="RecipientNameType" minOccurs="0"/>
+			<xs:element name="EmploymentDate" type="LabelValueType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="EmploymentEndDate" type="LabelValueType" minOccurs="0"/>
+			<xs:element name="SalaryCategories" type="SalaryCategoryType" minOccurs="0"/>
+			<xs:element name="PaymentType" type="LabelValueType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Classification" type="ClassificationType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- ************ -->
+	<!-- ROOT TYPE VI -->
+	<!-- ************ -->
+	<xs:complexType name="ClassificationType">
+		<xs:sequence>
+			<xs:element name="Heading" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="JobTitle" type="LabelValueType" minOccurs="0"/>
+			<xs:element name="DeptCode" type="LabelValueType" minOccurs="0"/>
+			<xs:element name="CostFollowUp" type="LabelValueType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- ************* -->
+	<!-- ROOT TYPE VII -->
+	<!-- ************* -->
+	<xs:complexType name="BankAccountType">
+		<xs:sequence>
+			<xs:element name="Heading" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="AccountCode" type="AccountCType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- ************** -->
+	<!-- ROOT TYPE VIII -->
+	<!-- ************** -->
+	<xs:complexType name="CalculationBasesType">
+		<xs:sequence>
+			<xs:element name="Heading" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="SalaryRates" type="CalculationBasesFrameType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="TaxationRates" type="CalculationBasesFrameType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="DeductionRates" type="CalculationBasesFrameType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="VacationRecords" type="CalculationBasesFrameType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- ************ -->
+	<!-- ROOT TYPE IX -->
+	<!-- ************ -->
+	<xs:complexType name="PayDetailsType">
+		<xs:sequence>
+			<xs:element name="Heading" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="DetailLines" type="DetailListType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- *********** -->
+	<!-- ROOT TYPE X -->
+	<!-- *********** -->
+	<xs:complexType name="EarningsToDateType">
+		<xs:sequence>
+			<xs:element name="Heading" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Set" type="CumulativeSetType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- ************ -->
+	<!-- ROOT TYPE XI -->
+	<!-- ************ -->
+	<xs:complexType name="MessagesType">
+		<xs:sequence>
+			<xs:element name="Heading" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Permanent" type="LabelValueType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Transient" type="LabelValueType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- ************ -->
+	<!-- ROOT TYPE XII -->
+	<!-- ************ -->
+	<xs:complexType name="SalaryCategoryType">
+		<xs:sequence>
+			<xs:element name="Heading" minOccurs="0"/>
+			<xs:element name="SalaryCategory" type="LabelValueType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- -->
+	<!-- ROOT TYPES -->
+	<!-- -->
+</xs:schema>

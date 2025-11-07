@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="Acks">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Ack" type="AckType" maxOccurs="unbounded"></xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="AckType">
+		<xs:sequence>
+			<xs:element name="Id" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>If of ack message</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Timestamp" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Timestamp, when ack created</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ReferencedMessage" type="ReferencedMessageType"></xs:element>
+			<xs:element name="Response" type="ResponseType">
+				<xs:annotation>
+					<xs:documentation>Status; POS = OK, NEG = error</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Description" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Error description</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ReferencedMessageType">
+		<xs:sequence>
+			<xs:element name="MessageId" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Id of original message</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Timestamp" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Timestamp of original message</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="ResponseType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="POS"></xs:enumeration>
+			<xs:enumeration value="NEG"></xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>
