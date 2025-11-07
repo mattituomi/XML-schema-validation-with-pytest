@@ -5,7 +5,7 @@ import logging
 log = logging.getLogger(__name__)
 
 class PayslipValidationError(Exception):
-    """Raised for fatal validation failures."""
+    """Raised for fatal validation failures. This method can be modified to include more context and better error messages."""
     def __init__(self, message: str, file: Path, line: Optional[int] = None, errors: Optional[List]=None):
         self.file = file
         self.line = line
@@ -54,7 +54,7 @@ class PayslipValidator:
 
     # ---------- steps ----------
     def load_schema(self) -> None:
-        self._raise_if_missing(self.xsd_path, "XSD schema not found")
+        self._raise_if_missing(self.xsd_path, "XSD schema not found. You can set it within pytest schema_path fixture.")
         schema_doc = etree.parse(str(self.xsd_path))
         self.schema = etree.XMLSchema(schema_doc)
 
@@ -66,30 +66,12 @@ class PayslipValidator:
             self.rest = f.read()
 
     def check_declaration(self) -> None:
+        """
+        Verify that the XML declaration specifies ISO-8859-15 encoding. It is assumed that it is within the first line.
+        """
         # Must explicitly declare ISO-8859-15
         if 'encoding="ISO-8859-15"' not in self.first_line:
             raise PayslipValidationError(f"XML declaration must specify encoding='ISO-8859-15'. First line was: '{self.first_line}'", self.xml_path, 1)
-
-    #def check_encoding(self) -> None:
-    #    log.info(f"Detecting encoding for {self.xml_path.name}")
-    #    detection = chardet.detect(self.rest)
-    #    detected = detection.get("encoding")
-    #    confidence = detection.get("confidence", 0.0)
-    #    if not detected:
-    #        raise PayslipValidationError("Could not detect file encoding", self.xml_path)
-    #    normalized = detected.upper().replace("-", "_")
-    #    # Accept exact ISO-8859-15
-    #    if normalized in ("ISO_8859_15", "LATIN_9"):
-    #        return
-    #    # Latin-1 (ISO-8859-1) situation: warn or fail depending on config
-    #    if normalized in ("ISO_8859_1", "LATIN_1"):
-    #        msg = (f"Declared ISO-8859-15 but detected {detected} "
-    #               f"(confidence={confidence:.2f}). ISO-8859-1 and ISO-8859-15 differ in a few code points.")
-    #        warnings.warn(msg, UserWarning)
-    #        self.warnings.append(msg)
-    #        log.warning(msg)  
-    #        return
-    #    raise PayslipValidationError(f"Declared ISO-8859-15, but detected {detected} (confidence={confidence:.2f})", self.xml_path)
 
 
     def check_encoding(self) -> None:
